@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hogwarts House Sorting</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: #0a0a1a;
+            color: #eeba30;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-image: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), 
+                            url('https://i.imgur.com/8Z7RyWn.jpg');
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .parchment {
+            background-color: #f5e9d2;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" opacity="0.05"><path fill="%23000" d="M50 0Q60 40 50 80Q40 100 30 80Q20 60 30 40Q40 20 50 0Z"/></svg>');
+            color: #3d2b1f;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            max-width: 600px;
+            width: 90%;
+            margin: 20px auto;
+            border: 1px solid #8b6b3d;
+            position: relative;
+        }
+        
+        .parchment::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to right, transparent, rgba(0,0,0,0.1), transparent);
+            pointer-events: none;
+        }
+        
+        h1 {
+            color: #d3a625;
+            font-family: 'Harry Potter', 'Times New Roman', serif;
+            text-shadow: 2px 2px 4px #000;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+        
+        h2 {
+            color: #740001;
+            font-family: 'Harry Potter', 'Times New Roman', serif;
+            margin: 20px 0;
+            font-size: 1.8rem;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        
+        button {
+            background-color: #740001;
+            color: #f5e9d2;
+            border: none;
+            padding: 12px 25px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: 'Times New Roman', serif;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            background-color: #d3a625;
+            color: #2c2c2c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .house {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            display: none;
+            animation: fadeIn 1s;
+            border-left: 5px solid;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #gryffindor {
+            background-color: rgba(116, 0, 1, 0.1);
+            border-left-color: #740001;
+        }
+        
+        #slytherin {
+            background-color: rgba(26, 71, 42, 0.1);
+            border-left-color: #1a472a;
+        }
+        
+        #ravenclaw {
+            background-color: rgba(14, 26, 64, 0.1);
+            border-left-color: #0e1a40;
+        }
+        
+        #hufflepuff {
+            background-color: rgba(236, 185, 57, 0.1);
+            border-left-color: #ecb939;
+        }
+        
+        .house-name {
+            font-family: 'Harry Potter', 'Times New Roman', serif;
+            font-size: 2.5rem;
+            margin: 10px 0;
+            color: #2c2c2c;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .house-result-title {
+            font-family: 'Harry Potter', 'Times New Roman', serif;
+            font-size: 3rem;
+            margin: 20px 0;
+            color: #d3a625;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .house-traits {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        .trait {
+            background-color: rgba(0,0,0,0.1);
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        
+        #sorting-hat-container {
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .hat-text {
+            font-style: italic;
+            color: #740001;
+            margin: 20px 0;
+        }
+        
+        .question-number {
+            font-weight: bold;
+            color: #740001;
+            margin-bottom: 10px;
+        }
+        
+        @font-face {
+            font-family: 'Harry Potter';
+            src: url('https://fonts.cdnfonts.com/css/harry-potter') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        @media (max-width: 600px) {
+            .parchment {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.4rem;
+            }
+            
+            .house-result-title {
+                font-size: 2rem;
+            }
+            
+            .house-name {
+                font-size: 1.8rem;
+            }
+            
+            button {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="parchment">
+        <h1>Hogwarts House Sorting</h1>
+        
+        <div id="intro">
+            <p>Welcome to the Hogwarts School of Witchcraft and Wizardry.</p>
+            <p>The Sorting Ceremony will determine which house you belong to:</p>
+            
+            <div id="sorting-hat-container">
+                <p class="hat-text">"Oh you may not think I'm pretty, but don't judge on what you see..."</p>
+                <button id="sort-button">Put On The Sorting Hat</button>
+                <p class="hat-text">"I'll eat myself if you can find a smarter hat than me!"</p>
+            </div>
+            
+            <button id="quiz-button">Take The House Quiz Instead</button>
+        </div>
+        
+        <div id="questionnaire" style="display: none;">
+            <h2>Answer These Questions Truthfully</h2>
+            
+            <div class="question" style="display: block;">
+                <div class="question-number">Question 1 of 5</div>
+                <p>Which quality do you value most?</p>
+                <button class="answer" data-house="gryffindor">Bravery</button>
+                <button class="answer" data-house="slytherin">Ambition</button>
+                <button class="answer" data-house="ravenclaw">Intelligence</button>
+                <button class="answer" data-house="hufflepuff">Loyalty</button>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">Question 2 of 5</div>
+                <p>Which magical object would you choose?</p>
+                <button class="answer" data-house="gryffindor">Sword of Gryffindor</button>
+                <button class="answer" data-house="slytherin">Salazar's Locket</button>
+                <button class="answer" data-house="ravenclaw">Ravenclaw's Diadem</button>
+                <button class="answer" data-house="hufflepuff">Helga's Cup</button>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">Question 3 of 5</div>
+                <p>What's your approach to challenges?</p>
+                <button class="answer" data-house="gryffindor">Face them head-on</button>
+                <button class="answer" data-house="slytherin">Find the smartest solution</button>
+                <button class="answer" data-house="ravenclaw">Analyze carefully first</button>
+                <button class="answer" data-house="hufflepuff">Work together with others</button>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">Question 4 of 5</div>
+                <p>Which of these would you hate people to call you?</p>
+                <button class="answer" data-house="gryffindor">Cowardly</button>
+                <button class="answer" data-house="slytherin">Ordinary</button>
+                <button class="answer" data-house="ravenclaw">Ignorant</button>
+                <button class="answer" data-house="hufflepuff">Selfish</button>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">Question 5 of 5</div>
+                <p>What would you like to be remembered for after you die?</p>
+                <button class="answer" data-house="gryffindor">Your brave deeds</button>
+                <button class="answer" data-house="slytherin">Your power and influence</button>
+                <button class="answer" data-house="ravenclaw">Your wisdom and discoveries</button>
+                <button class="answer" data-house="hufflepuff">Your kindness and friendships</button>
+            </div>
+        </div>
+        
+        <div id="quiz-result" style="display: none;">
+            <h2>The Sorting Hat Declares...</h2>
+            <div id="quiz-house-result"></div>
+        </div>
+        
+        <div id="sorting-result"></div>
+    </div>
+
+    <script>
+        // House data - text only
+        const houses = {
+            gryffindor: {
+                name: "Gryffindor",
+                description: "Gryffindor house values bravery, daring, nerve, and chivalry. Its emblematic animal is the lion, and its colours are scarlet and gold. The house was founded by Godric Gryffindor.",
+                traits: ["Bravery", "Courage", "Determination", "Chivalry"],
+                ghost: "Nearly Headless Nick",
+                founder: "Godric Gryffindor",
+                quote: "\"You might belong in Gryffindor, where dwell the brave at heart, their daring, nerve and chivalry set Gryffindors apart.\"",
+                color: "#740001"
+            },
+            slytherin: {
+                name: "Slytherin",
+                description: "Slytherin house values ambition, cunning, leadership, and resourcefulness. Its emblematic animal is the serpent, and its colours are emerald green and silver. The house was founded by Salazar Slytherin.",
+                traits: ["Ambition", "Cunning", "Resourcefulness", "Leadership"],
+                ghost: "The Bloody Baron",
+                founder: "Salazar Slytherin",
+                quote: "\"Or perhaps in Slytherin you'll make your real friends, those cunning folk use any means to achieve their ends.\"",
+                color: "#1a472a"
+            },
+            ravenclaw: {
+                name: "Ravenclaw",
+                description: "Ravenclaw house values intelligence, knowledge, curiosity, creativity and wit. Its emblematic animal is the eagle, and its colours are blue and bronze. The house was founded by Rowena Ravenclaw.",
+                traits: ["Intelligence", "Wisdom", "Creativity", "Wit"],
+                ghost: "The Grey Lady",
+                founder: "Rowena Ravenclaw",
+                quote: "\"Or yet in wise old Ravenclaw, if you've a ready mind, where those of wit and learning will always find their kind.\"",
+                color: "#0e1a40"
+            },
+            hufflepuff: {
+                name: "Hufflepuff",
+                description: "Hufflepuff house values hard work, dedication, patience, loyalty, and fair play. Its emblematic animal is the badger, and its colours are yellow and black. The house was founded by Helga Hufflepuff.",
+                traits: ["Loyalty", "Patience", "Fairness", "Hard Work"],
+                ghost: "The Fat Friar",
+                founder: "Helga Hufflepuff",
+                quote: "\"You might belong in Hufflepuff, where they are just and loyal, those patient Hufflepuffs are true and unafraid of toil.\"",
+                color: "#ecb939"
+            }
+        };
+
+        // DOM elements
+        const sortButton = document.getElementById('sort-button');
+        const quizButton = document.getElementById('quiz-button');
+        const intro = document.getElementById('intro');
+        const questionnaire = document.getElementById('questionnaire');
+        const sortingResult = document.getElementById('sorting-result');
+        const quizResult = document.getElementById('quiz-result');
+        const quizHouseResult = document.getElementById('quiz-house-result');
+        const questions = document.querySelectorAll('.question');
+        const answerButtons = document.querySelectorAll('.answer');
+
+        // Quiz variables
+        let answers = {
+            gryffindor: 0,
+            slytherin: 0,
+            ravenclaw: 0,
+            hufflepuff: 0
+        };
+
+        // Initialize
+        questionnaire.style.display = 'none';
+        quizResult.style.display = 'none';
+
+        // Sorting Hat functionality
+        sortButton.addEventListener('click', function() {
+            intro.style.display = 'none';
+            questionnaire.style.display = 'none';
+            quizResult.style.display = 'none';
+            sortingResult.innerHTML = `
+                <p>The Sorting Hat is peering into your mind...</p>
+                <p>"Hmm... difficult... very difficult..."</p>
+            `;
+            
+            // Immediately sort into a house
+            sortIntoHouse();
+        });
+
+        // Random house sorting
+        function sortIntoHouse() {
+            const houseNames = Object.keys(houses);
+            const randomIndex = Math.floor(Math.random() * houseNames.length);
+            const selectedHouse = houseNames[randomIndex];
+            displayHouseResult(selectedHouse, sortingResult);
+        }
+
+        // Display house result
+        function displayHouseResult(house, container) {
+            const houseData = houses[house];
+            
+            // Clear previous content
+            container.innerHTML = '';
+            
+            // Create house result elements
+            const heading = document.createElement('h1');
+            heading.className = 'house-result-title';
+            heading.textContent = houseData.name;
+            heading.style.color = houseData.color;
+            
+            const houseDiv = document.createElement('div');
+            houseDiv.id = house;
+            houseDiv.className = 'house';
+            houseDiv.style.display = 'block';
+            
+            houseDiv.innerHTML = `
+                <div class="house-name">${houseData.name}!</div>
+                <p>${houseData.description}</p>
+                <div class="house-traits">
+                    ${houseData.traits.map(trait => `<span class="trait">${trait}</span>`).join('')}
+                </div>
+                <p><em>${houseData.quote}</em></p>
+                <p><strong>Founder:</strong> ${houseData.founder}</p>
+                <p><strong>Ghost:</strong> ${houseData.ghost}</p>
+            `;
+            
+            const tryAgainBtn = document.createElement('button');
+            tryAgainBtn.id = 'try-again';
+            tryAgainBtn.textContent = 'Try Again';
+            
+            // Add elements to container
+            container.appendChild(heading);
+            container.appendChild(houseDiv);
+            container.appendChild(tryAgainBtn);
+            
+            // Add event listener for try again
+            tryAgainBtn.addEventListener('click', () => {
+                container.innerHTML = '';
+                intro.style.display = 'block';
+            });
+        }
+
+        // Quiz functionality
+        quizButton.addEventListener('click', () => {
+            intro.style.display = 'none';
+            sortingResult.innerHTML = '';
+            questionnaire.style.display = 'block';
+            quizResult.style.display = 'none';
+            
+            // Reset quiz state
+            for (const house in answers) {
+                answers[house] = 0;
+            }
+            
+            // Show only first question
+            questions.forEach((q, index) => {
+                q.style.display = index === 0 ? 'block' : 'none';
+            });
+        });
+
+        // Answer button functionality
+        answerButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const house = this.getAttribute('data-house');
+                answers[house]++;
+                
+                // Find current question and next question
+                const currentQuestion = this.closest('.question');
+                const nextQuestion = currentQuestion.nextElementSibling;
+                
+                if (nextQuestion && nextQuestion.classList.contains('question')) {
+                    // Move to next question
+                    currentQuestion.style.display = 'none';
+                    nextQuestion.style.display = 'block';
+                } else {
+                    // Quiz complete - show results
+                    questionnaire.style.display = 'none';
+                    showQuizResult();
+                }
+            });
+        });
+
+        // Calculate quiz result
+        function showQuizResult() {
+            let maxScore = 0;
+            let selectedHouse = 'gryffindor';
+            
+            // Find house with highest score
+            for (const house in answers) {
+                if (answers[house] > maxScore) {
+                    maxScore = answers[house];
+                    selectedHouse = house;
+                }
+            }
+            
+            // Display quiz result
+            quizResult.style.display = 'block';
+            quizHouseResult.innerHTML = '';
+            
+            // Create house result elements
+            const heading = document.createElement('h1');
+            heading.className = 'house-result-title';
+            heading.textContent = houses[selectedHouse].name;
+            heading.style.color = houses[selectedHouse].color;
+            
+            const houseDiv = document.createElement('div');
+            houseDiv.id = selectedHouse;
+            houseDiv.className = 'house';
+            houseDiv.style.display = 'block';
+            
+            houseDiv.innerHTML = `
+                <div class="house-name">${houses[selectedHouse].name}!</div>
+                <p>${houses[selectedHouse].description}</p>
+                <div class="house-traits">
+                    ${houses[selectedHouse].traits.map(trait => `<span class="trait">${trait}</span>`).join('')}
+                </div>
+                <p><em>${houses[selectedHouse].quote}</em></p>
+                <p><strong>Founder:</strong> ${houses[selectedHouse].founder}</p>
+                <p><strong>Ghost:</strong> ${houses[selectedHouse].ghost}</p>
+            `;
+            
+            const tryAgainBtn = document.createElement('button');
+            tryAgainBtn.id = 'try-again';
+            tryAgainBtn.textContent = 'Try Again';
+            
+            // Add elements to container
+            quizHouseResult.appendChild(heading);
+            quizHouseResult.appendChild(houseDiv);
+            quizHouseResult.appendChild(tryAgainBtn);
+            
+            // Add event listener for try again
+            tryAgainBtn.addEventListener('click', () => {
+                quizResult.style.display = 'none';
+                intro.style.display = 'block';
+                
+                // Reset answers
+                for (const house in answers) {
+                    answers[house] = 0;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
